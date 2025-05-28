@@ -1,0 +1,15 @@
+[project]
+name = "pyviewer-extended"
+version = "0.1.2"
+description = "This is an extended version of pyviewer with additional 'Multiple textures' feature."
+readme = "README.md"
+authors = [{ name = "Shinei Arakawa", email = "arakawashinei1115@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = ["pyviewer"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+pyviewer = { git = "https://github.com/harskish/pyviewer.git" }
