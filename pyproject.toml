@@ -1,6 +1,6 @@
 [project]
 name = "pyviewer-extended"
-version = "0.1.2"
+version = "0.1.3"
 description = "This is an extended version of pyviewer with additional 'Multiple textures' feature."
 readme = "README.md"
 authors = [{ name = "Shinei Arakawa", email = "arakawashinei1115@gmail.com" }]

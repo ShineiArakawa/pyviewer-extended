@@ -84,7 +84,7 @@ def dockable(func=None, title=''):
 
 
 @lru_cache(maxsize=4)
-def alpha_ch_torch(self, H, W, maxval, dtype, device):
+def alpha_ch_torch(H, W, maxval, dtype, device):
     """
     Get alpha channel for padding image data to rgba.
     Cached to speed up repeated padding of GPU tensors.
