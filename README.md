@@ -25,3 +25,11 @@ See the [example script](/examples/demo_docking_viewer_3panels.py), which create
 ### 2.2 Remote Single Image Viewer
 
 See the [example script](/examples/demo_remote_siv.py), which creates a GUI with a server that can be accessed remotely to view a single image.
+
+## License
+
+This library is licensed under the [CC BY-NC-SA 4.0 license](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+It is derived from [PyViewer](https://github.com/harskish/pyviewer.git) by Erik Härkönen, used in accordance with the ShareAlike terms.
+
+See also [LICENSE](/LICENSE) for more details.

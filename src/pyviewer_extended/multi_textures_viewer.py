@@ -1,3 +1,17 @@
+"""
+multi_textures_viewer
+=====================
+
+A module for creating a viewer with multiple isolated dockable windows with different textures.
+
+LICENSE
+-------
+
+This file includes modified codes from:
+
+- Erik Härkönen's 'PyViewer' library (licensed under CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/): https://github.com/harskish/pyviewer.git
+"""
+
 import importlib.util
 import sys
 import threading
@@ -141,8 +155,8 @@ class TextureWindowUnit:
 
         Parameters
         ----------
-        glfw_window : glfw._GLFWwindow
-            GLFW window to set callbacks for.
+        glfw_window: glfw._GLFWwindow
+            GLFW window to set callbacks for .
         """
 
         self._pannable_area.set_callbacks(glfw_window)
@@ -236,8 +250,8 @@ class TextureWindows(dict[str, TextureWindowUnit]):
 
         Parameters
         ----------
-        glfw_window : glfw._GLFWwindow
-            GLFW window to set callbacks for.
+        glfw_window: glfw._GLFWwindow
+            GLFW window to set callbacks for .
         """
 
         for window in self.values():
