@@ -2,7 +2,7 @@
 PyViewer Extended
 =================
 
-On the shoulders of giants, this package adds multi texture windows support to PyViewer.
+On the shoulders of giants, this package adds some additional features to the original PyViewer package.
 """
 
 # ----------------------------------------------------------------------------

@@ -1,11 +1,16 @@
 [project]
 name = "pyviewer-extended"
-version = "0.1.3"
-description = "This is an extended version of pyviewer with additional 'Multiple textures' feature."
+version = "0.2.0"
+description = "On the shoulders of giants, this package adds some additional features to the original PyViewer package."
 readme = "README.md"
 authors = [{ name = "Shinei Arakawa", email = "arakawashinei1115@gmail.com" }]
 requires-python = ">=3.11"
-dependencies = ["pyviewer"]
+dependencies = [
+    "fastapi[all]>=0.115.12",
+    "httpx>=0.28.1",
+    "pyviewer",
+    "uvicorn[standard]>=0.34.3",
+]
 
 [build-system]
 requires = ["hatchling"]

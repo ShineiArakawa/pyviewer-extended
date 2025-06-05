@@ -24,6 +24,7 @@ if __name__ == '__main__':
             img_2 = np.clip(img_2, 0, 1)
 
             return {
+                # NOTE: These keys must match the panel names passed when instantiating the viewer
                 'Noise 0': img_0,  # HWC
                 'Noise 1': img_1,  # HWC
                 'Noise 2': img_2,  # HWC
