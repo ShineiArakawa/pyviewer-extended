@@ -244,7 +244,7 @@ def heatmap(
     if isinstance(x, np.ndarray):
         x = x.astype(np.float32)
     elif siv.is_tensor(x):
-        x = x.to(dtype='float32')
+        x = x.to(dtype=torch.float32)
 
     # Encode as base64 string
     x = encode_ndarray(x)
@@ -307,7 +307,7 @@ def psd(
     if isinstance(img_hw, np.ndarray):
         img_hw = img_hw.astype(np.float64)
     elif siv.is_tensor(img_hw):
-        img_hw = img_hw.to(dtype='float64')
+        img_hw = img_hw.to(dtype=torch.float64)
 
     import radpsd
     psd = radpsd.compute_psd(img_hw, is_db_scale=True, beta=kaiser_beta, padding_factor=padding_factor)
@@ -361,7 +361,7 @@ def radial_psd(
     if isinstance(img, np.ndarray):
         img = img.astype(np.float64)
     elif siv.is_tensor(img):
-        img = img.to(dtype='float64')
+        img = img.to(dtype=torch.float64)
 
     import radpsd
     rad_psd = radpsd.compute_radial_psd(
