@@ -331,6 +331,7 @@ def radial_psd(
     n_radial_bins: int = 1024,
     kaiser_beta: float = 8.0,
     padding_factor: int = 4,
+    ylim: tuple[float, float] = (1e-12, 1e2)
 ) -> str | None:
     """Plot the radial Power Spectral Density (PSD) of an image using the remote Single Image Viewer server.
 
@@ -346,6 +347,8 @@ def radial_psd(
         Beta parameter for the Kaiser window, defaults to 8.0
     padding_factor : int, optional
         Padding factor for the PSD computation, defaults to 4
+    ylim : tuple[float, float], optional
+        Y-axis limits for the plot, defaults to (1e-12, 1e2)
 
     Returns
     -------
@@ -381,4 +384,4 @@ def radial_psd(
     freq = radpsd.radial_freq(min_size, n_radial_bins)  # [cycles/pixel]
     freq = freq * min_size  # [0, ..., min_size/2]
 
-    return plot(y=rad_psd[1:], x=freq[1:])  # Skip the DC component (first element)
+    return plot(y=rad_psd[1:], x=freq[1:], ylim=ylim)  # Skip the DC component (first element)
