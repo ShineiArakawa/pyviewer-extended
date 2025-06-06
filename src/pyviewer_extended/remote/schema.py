@@ -23,5 +23,15 @@ class PlotRequest(pydantic.BaseModel):
     x: str | None = None
 
 
+class HeatmapRequest(pydantic.BaseModel):
+    x: str
+    h_bounds: list[float] | None = None
+    w_bounds: list[float] | None = None
+
+
+class HeatmapResponse(pydantic.BaseModel):
+    state_id: str
+
+
 class PlotResponse(pydantic.BaseModel):
     state_id: str

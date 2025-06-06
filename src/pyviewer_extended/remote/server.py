@@ -8,9 +8,9 @@ import uuid
 
 import fastapi
 import numpy as np
-import pyviewer.single_image_viewer as siv
 
 import pyviewer_extended.remote.schema as schema
+import pyviewer_extended.remote.ui as siv
 
 # ----------------------------------------------------------------------------
 # Utility functions
@@ -115,6 +115,40 @@ async def plot(request: schema.PlotRequest) -> schema.PlotResponse:
     state_id = uuid.uuid4().hex
 
     return schema.PlotResponse(state_id=state_id)
+
+
+@app.post('/heatmap', response_model=schema.HeatmapResponse)
+async def heatmap(request: schema.HeatmapRequest) -> schema.HeatmapResponse:
+    x = request.x
+    h_bounds = request.h_bounds
+    w_bounds = request.w_bounds
+
+    if x is None:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail='x must be provided.'
+        )
+
+    if h_bounds is not None and len(h_bounds) != 2:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail='h_bounds must be a list of two floats.'
+        )
+
+    if w_bounds is not None and len(w_bounds) != 2:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail='w_bounds must be a list of two floats.'
+        )
+
+    x = decode_ndarray(x)
+
+    with lock:
+        siv.heatmap(x=x, h_bounds=h_bounds, w_bounds=w_bounds, ignore_pause=True)
+
+    state_id = uuid.uuid4().hex
+
+    return schema.HeatmapResponse(state_id=state_id)
 
 
 @app.get('/shutdown')

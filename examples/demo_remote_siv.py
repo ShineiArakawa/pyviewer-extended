@@ -61,6 +61,18 @@ if input('Next, draw a grid? (y/n): ').strip().lower() == 'y':
 
     siv.grid(img_nchw=grid)
 
+# ----------------------------------------------------------------------------------------------------
+# Next, draw a power spectrum density
+
+if input('Next, draw a power spectrum density? (y/n): ').strip().lower() == 'y':
+    # Create a power spectrum density plot
+
+    t = np.linspace(0.0, 1.0, 64, dtype=np.float32)
+    x = np.sin(2 * np.pi * 4 * t)
+    img = np.tile(x[np.newaxis, :], (64, 1))
+
+    siv.psd(img)
+
 
 # ----------------------------------------------------------------------------------------------------
 # Finally, plot a graph
