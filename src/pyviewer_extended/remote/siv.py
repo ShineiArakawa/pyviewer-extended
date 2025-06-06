@@ -314,3 +314,63 @@ def psd(
     half_w = w // 2
 
     return heatmap(psd, h_bounds=(-half_h, half_h), w_bounds=(-half_w, half_w))
+
+
+def radial_psd(
+    img: np.ndarray | torch.Tensor,
+    *,
+    n_angles: int = 720,
+    n_radial_bins: int = 1024,
+    kaiser_beta: float = 8.0,
+    padding_factor: int = 4,
+) -> str | None:
+    """Plot the radial Power Spectral Density (PSD) of an image using the remote Single Image Viewer server.
+
+    Parameters
+    ----------
+    img : np.ndarray | torch.Tensor
+        Image in HW format (..., height, width)
+    n_angles : int, optional
+        Number of angles to sample for the radial PSD, defaults to 720
+    n_radial_bins : int, optional
+        Number of radial bins to use in the PSD computation, defaults to 1024
+    kaiser_beta : float, optional
+        Beta parameter for the Kaiser window, defaults to 8.0
+    padding_factor : int, optional
+        Padding factor for the PSD computation, defaults to 4
+
+    Returns
+    -------
+    str | None
+        The state ID of the drawn radial PSD plot, or None if the request failed.
+    """
+
+    assert img is not None, "'img' must be provided"
+
+    if isinstance(img, np.ndarray):
+        img = img.astype(np.float64)
+    elif siv.is_tensor(img):
+        img = img.to(dtype='float64')
+
+    import radpsd
+    rad_psd = radpsd.compute_radial_psd(
+        img=img,
+        n_angles=n_angles,
+        n_radial_bins=n_radial_bins,
+        kaiser_beta=kaiser_beta,
+        padding_factor=padding_factor,
+    )
+
+    if siv.is_tensor(img):
+        psd = psd.detach().cpu().numpy()
+
+    # Take average across angles
+    avg_axes = tuple(range(rad_psd.ndim - 1))  # All axes except the last one (radial)
+    rad_psd = np.mean(rad_psd, axis=avg_axes)
+    rad_psd = np.ascontiguousarray(rad_psd, dtype=np.float32)
+
+    min_size = min(img.shape[-2:])  # Minimum of height and width
+    freq = radpsd.radial_freq(min_size, n_radial_bins)  # [cycles/pixel]
+    freq = freq * min_size  # [0, ..., min_size/2]
+
+    return plot(y=rad_psd[1:], x=freq[1:])  # Skip the DC component (first element)

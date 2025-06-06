@@ -6,7 +6,14 @@ Modifications from the original 'single_image_viewer.py'
 --------------------------------------------------------
 
 - Heatmap support added
+    - added `heatmap()` function in global namespace
+    - added `heatmap()` method in `SingleImageViewer`
+    - added `VizMode.PLOT_HEAT` mode
 - log axis support added
+    - added `AxisScale` enum class
+    - added `axis_scale_x` and `axis_scale_y` properties to `SingleImageViewer`
+    - added `X` and `Y` keys to toggle axis scale in `ui()`
+    - added `setup_axis_scale()` calls to `ui()`
 
 LICENSE
 -------
