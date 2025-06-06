@@ -373,7 +373,7 @@ def radial_psd(
     )
 
     if siv.is_tensor(img):
-        psd = psd.detach().cpu().numpy()
+        rad_psd = rad_psd.detach().cpu().numpy()
 
     # Take average across angles
     avg_axes = tuple(range(rad_psd.ndim - 1))  # All axes except the last one (radial)
