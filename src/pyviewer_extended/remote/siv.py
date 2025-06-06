@@ -170,7 +170,9 @@ def grid(
 def plot(
     y: np.ndarray | torch.Tensor,
     *,
-    x: np.ndarray | torch.Tensor | None = None
+    x: np.ndarray | torch.Tensor | None = None,
+    xlim: tuple[float, float] | None = None,
+    ylim: tuple[float, float] | None = None,
 ) -> str | None:
     """Plot a line graph using the remote Single Image Viewer server.
     This is equivalent to calling `siv.plot(...)` but sends the data to a remote server instead of plotting it locally.
@@ -181,6 +183,10 @@ def plot(
         Y-axis data
     x : np.ndarray | torch.Tensor | None, optional
         X-axis data, defaults to None
+    xlim : tuple[float, float] | None, optional
+        X-axis limits, defaults to None
+    ylim : tuple[float, float] | None, optional
+        Y-axis limits, defaults to None
 
     Returns
     -------
@@ -200,7 +206,9 @@ def plot(
     # Create the request body
     body = schema.PlotRequest(
         y=y,
-        x=x
+        x=x,
+        xlim=xlim,
+        ylim=ylim,
     ).model_dump()
 
     # Post the request

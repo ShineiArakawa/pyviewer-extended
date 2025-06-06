@@ -254,7 +254,7 @@ class SingleImageViewer:
             self.has_new_img.value = 1
 
     # Called from main thread
-    def plot(self, y, *, x=None, ignore_pause=False):
+    def plot(self, y, *, x=None, xlim=None, ylim=None, ignore_pause=False):
         # Paused or closed
         if (self.paused.value and not ignore_pause) or not self.ui_process.is_alive():
             return
@@ -271,6 +271,11 @@ class SingleImageViewer:
         if is_tensor(y):
             y = y.detach().cpu().numpy()
 
+        if xlim is None:
+            xlim = (0.0, 0.0)
+        if ylim is None:
+            ylim = (0.0, 0.0)
+
         # Convert lists to np arrays
         x = np.asarray(x) if x is not None else None
         y = np.asarray(y) if y is not None else None
@@ -281,13 +286,16 @@ class SingleImageViewer:
         assert len(x) == len(y), 'X and Y length differs'
 
         sz = np.prod(x.shape)
-        assert sz <= self.max_size_plot, f'Too much data, max size {self.max_size_plot} per axis'
+
+        sz_total = sz + 4  # additional values for xlim and ylim
+        assert sz_total <= self.max_size_plot, f'Too much data, max size {self.max_size_plot} per axis'
 
         # Synchronize
         with self.shared_buffer_plot.get_lock():
             arr_np = np.frombuffer(self.shared_buffer_plot.get_obj(), dtype='float32')
             arr_np[0:sz] = x.astype(np.float32)
             arr_np[sz:2*sz] = y.astype(np.float32)
+            arr_np[2*sz:2*sz+4] = np.array([xlim[0], xlim[1], ylim[0], ylim[1]], dtype='float32')
             self.latest_plot_len.value = sz
 
     # Called from main thread
@@ -429,16 +437,30 @@ class SingleImageViewer:
         else:
             v.pan_handler.zoom_enabled = False
             x = y = None
+            xlim = ylim = None
+
             with self.shared_buffer_plot.get_lock():
                 sz = self.latest_plot_len.value
                 data = np.frombuffer(self.shared_buffer_plot.get_obj(), dtype='float32', count=2*sz).copy()
+
+                end_idx = 2*sz
+
                 x = data[0:sz]
-                y = data[sz:]
+                y = data[sz:end_idx]
+
+                xlim = (data[end_idx], data[end_idx + 1])
+                ylim = (data[end_idx + 2], data[end_idx + 3])
+
             W, H = glfw.get_window_size(v._window)
             style = imgui.get_style()
             avail_h = H - 2*style.window_padding.y
             avail_w = W - 2*style.window_padding.x
             if implot.begin_plot('##siv_main_plot', size=(avail_w, avail_h)):
+                if xlim[0] != xlim[1]:
+                    implot.setup_axis_limits(implot.ImAxis_.x1, xlim[0], xlim[1], imgui.Cond_.always.value)
+                if ylim[0] != ylim[1]:
+                    implot.setup_axis_limits(implot.ImAxis_.y1, ylim[0], ylim[1], imgui.Cond_.always.value)
+
                 if viz_mode in [VizMode.PLOT_LINE, VizMode.PLOT_LINE_DOT]:
                     implot.setup_axis_scale(implot.ImAxis_.x1, AxisScale(self.axis_scale_x.value).get_enum())
                     implot.setup_axis_scale(implot.ImAxis_.y1, AxisScale(self.axis_scale_y.value).get_enum())
@@ -525,9 +547,9 @@ def grid(*, img_nchw=None, ignore_pause=False):
     inst.draw(img_hwc=reshape_grid(img_nchw=img_nchw), ignore_pause=ignore_pause)
 
 
-def plot(y, *, x=None, ignore_pause=False):
+def plot(y, *, x=None, xlim=None, ylim=None, ignore_pause=False):
     init('SIV')  # no-op if init already performed
-    inst.plot(x=x, y=y, ignore_pause=ignore_pause)
+    inst.plot(x=x, y=y, xlim=xlim, ylim=ylim, ignore_pause=ignore_pause)
 
 
 def heatmap(x, *,  h_bounds=None, w_bounds=None, ignore_pause=False):

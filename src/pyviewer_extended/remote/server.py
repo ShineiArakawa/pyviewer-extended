@@ -97,8 +97,10 @@ async def grid(request: schema.GridRequest) -> schema.GridResponse:
 
 @app.post('/plot', response_model=schema.PlotResponse)
 async def plot(request: schema.PlotRequest) -> schema.PlotResponse:
-    y = request.y
     x = request.x
+    y = request.y
+    xlim = request.xlim
+    ylim = request.ylim
 
     if y is None:
         raise fastapi.HTTPException(
@@ -106,11 +108,22 @@ async def plot(request: schema.PlotRequest) -> schema.PlotResponse:
             detail='y must be provided.'
         )
 
+    if xlim is not None and len(xlim) < 2:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail='xlim must be a list of two floats.'
+        )
+    if ylim is not None and len(ylim) < 2:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail='ylim must be a list of two floats.'
+        )
+
     y = decode_ndarray(y)
     x = decode_ndarray(x)
 
     with lock:
-        siv.plot(y=y, x=x, ignore_pause=True)
+        siv.plot(y=y, x=x, xlim=xlim, ylim=ylim, ignore_pause=True)
 
     state_id = uuid.uuid4().hex
 

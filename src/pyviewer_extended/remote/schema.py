@@ -21,6 +21,8 @@ class GridResponse(pydantic.BaseModel):
 class PlotRequest(pydantic.BaseModel):
     y: str
     x: str | None = None
+    xlim: list[float] | None = None
+    ylim: list[float] | None = None
 
 
 class HeatmapRequest(pydantic.BaseModel):
