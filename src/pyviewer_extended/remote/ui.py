@@ -441,7 +441,7 @@ class SingleImageViewer:
 
             with self.shared_buffer_plot.get_lock():
                 sz = self.latest_plot_len.value
-                data = np.frombuffer(self.shared_buffer_plot.get_obj(), dtype='float32', count=2*sz).copy()
+                data = np.frombuffer(self.shared_buffer_plot.get_obj(), dtype='float32', count=2*sz+4).copy()
 
                 end_idx = 2*sz
 
