@@ -3,7 +3,7 @@ name = "pyviewer-extended"
 version = "0.4.2"
 description = "On the shoulders of giants, this package adds some additional features to the original PyViewer package."
 readme = "README.md"
-authors = [{ name = "Shinei Arakawa", email = "sarakawalab@gmail.com" }]
+authors = [{ name = "Shinei Arakawa", email = "arakawashinei1115@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = ["pyviewer"]
 license = { file = "LICENSE" }
