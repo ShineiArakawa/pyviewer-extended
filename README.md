@@ -5,10 +5,6 @@ On the shoulders of giants, this package adds some additional features to the or
 ## 1. Install
 
 ```bash
-pip install https://github.com/ShineiArakawa/pyviewer-extended.git
-```
-
-```bash
 pip install git@github.com:ShineiArakawa/pyviewer-extended.git
 ```
 
