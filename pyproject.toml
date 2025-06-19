@@ -1,6 +1,6 @@
 [project]
 name = "pyviewer-extended"
-version = "0.3.0"
+version = "0.4.0"
 description = "On the shoulders of giants, this package adds some additional features to the original PyViewer package."
 readme = "README.md"
 authors = [{ name = "Shinei Arakawa", email = "arakawashinei1115@gmail.com" }]
