@@ -362,8 +362,6 @@ class MultiTexturesDockingViewer:
         self._window_title = name
         self._orig_window_title = name
         self.load_font_awesome = with_font_awesome
-        self.prev_time = 0.0
-        self.current_fps = 0.0
         self.enable_vsync = enable_vsync
 
         # Check if HDR mode has been turned on
@@ -432,10 +430,6 @@ class MultiTexturesDockingViewer:
             self.texture_windows.set_theme()
 
         def after_swap():
-            cur_time = glfw.get_time()
-            self.current_fps = 1.0 / (cur_time - self.prev_time)
-            self.prev_time = cur_time
-
             glfw.set_window_title(self.window, self._window_title)  # from main thread
 
         runner_params.callbacks.post_init = post_init_fun
