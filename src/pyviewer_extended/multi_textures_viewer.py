@@ -12,14 +12,14 @@ This file includes modified codes from:
 - Erik Härkönen's 'PyViewer' library (licensed under CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/): https://github.com/harskish/pyviewer.git
 """
 
+import functools
 import importlib.util
+import pathlib
 import sys
 import threading
 import time
 import types
-from functools import lru_cache
-from pathlib import Path
-from typing import Union
+import typing
 
 import numpy as np
 import OpenGL.GL as gl
@@ -97,7 +97,7 @@ def dockable(func=None, title=''):
 # Utilities
 
 
-@lru_cache(maxsize=4)
+@functools.lru_cache(maxsize=4)
 def alpha_ch_torch(H, W, maxval, dtype, device):
     """
     Get alpha channel for padding image data to rgba.
@@ -105,6 +105,10 @@ def alpha_ch_torch(H, W, maxval, dtype, device):
     """
 
     return maxval * torch.ones((H, W, 1), dtype=dtype, device=device)
+
+
+def file_drop_callback_wrapper(window: glfw._GLFWwindow, paths: list[pathlib.Path], callback: typing.Callable[[list[pathlib.Path]], bool], prev: typing.Callable):
+    return callback([pathlib.Path(p) for p in paths]) or prev(window, paths)
 
 # ------------------------------------------------------------------------------------------------------------
 # TextureWindowUnit
@@ -283,7 +287,7 @@ class TextureWindows(dict[str, TextureWindowUnit]):
 
             # RGBA texture uploads are much faster on some drivers
             if img_hwc.shape[-1] == 3:
-                maxval = 1 if is_fp else 2**(dtype_bits - int(is_signed)) - 1
+                maxval = 1 if is_fp else 2**(dtype_bits - int(is_signed))
                 if is_np:
                     img_hwc = np.concatenate([img_hwc, maxval * np.ones((H, W, 1), dtype=img_hwc.dtype)], axis=-1)
                 else:
@@ -306,6 +310,7 @@ class MultiTexturesDockingViewer:
         name: str,
         texture_names: list[str],
         normalize=False,
+        enable_vsync=False,
         with_implot=True,
         with_implot3d=False,
         with_node_editor=False,
@@ -357,6 +362,9 @@ class MultiTexturesDockingViewer:
         self._window_title = name
         self._orig_window_title = name
         self.load_font_awesome = with_font_awesome
+        self.prev_time = 0.0
+        self.current_fps = 0.0
+        self.enable_vsync = enable_vsync
 
         # Check if HDR mode has been turned on
         from pyviewer import _macos_hdr_patch
@@ -379,12 +387,15 @@ class MultiTexturesDockingViewer:
             self.load_settings()
 
         def post_init_fun():
-            # glfw.make_context_current(self.window)
-            # glfw.swap_interval(1)  # Enable vsync
+            glfw.make_context_current(self.window)
+
+            if self.enable_vsync:
+                glfw.swap_interval(1)  # Enable vsync
 
             # Create OpenGL texture
             self.texture_windows.generate_texture()
 
+            # Setup
             load_settings_cbk()
             self.setup_state()
             self.start_event.set()
@@ -407,6 +418,12 @@ class MultiTexturesDockingViewer:
             # Set callbacks for PannableArea
             self.texture_windows.set_callbacks(self.window)
 
+            # Set callback for drop event
+            def noop(*args, **kwargs):
+                return False
+            prev = glfw.set_drop_callback(self.window, None)
+            glfw.set_drop_callback(self.window, functools.partial(file_drop_callback_wrapper, callback=self.drag_and_drop_callback, prev=(prev or noop)))
+
         def setup_theme_cbk():
             self.setup_theme()  # user-overridable
             self.scale_style_sizes()
@@ -415,8 +432,11 @@ class MultiTexturesDockingViewer:
             self.texture_windows.set_theme()
 
         def after_swap():
-            # glfw.set_window_title(self.window, self._window_title)  # from main thread
-            pass
+            cur_time = glfw.get_time()
+            self.current_fps = 1.0 / (cur_time - self.prev_time)
+            self.prev_time = cur_time
+
+            glfw.set_window_title(self.window, self._window_title)  # from main thread
 
         runner_params.callbacks.post_init = post_init_fun
         runner_params.callbacks.before_exit = before_exit
@@ -454,10 +474,11 @@ class MultiTexturesDockingViewer:
         # .ini for window and app state saving'
         runner_params.ini_folder_type = hello_imgui.IniFolderType.app_user_config_folder
         runner_params.ini_filename = name.lower().strip().replace(' ', '_') + '.ini'
-        ini_path = Path(hello_imgui.ini_folder_location(runner_params.ini_folder_type)) / runner_params.ini_filename
+        ini_path = pathlib.Path(hello_imgui.ini_folder_location(runner_params.ini_folder_type)) / runner_params.ini_filename
         print(f'INI path: {ini_path}')
 
         glfw.init()
+
         if self.hdr:
             glfw.window_hint(glfw.RED_BITS, 16)
             glfw.window_hint(glfw.GREEN_BITS, 16)
@@ -496,7 +517,7 @@ class MultiTexturesDockingViewer:
         self.trigger_font_reload()
 
     # Includes keyboard (glfw.KEY_A) and mouse (glfw.MOUSE_BUTTON_LEFT)
-    def keydown(self, key: Union[int, str]):
+    def keydown(self, key: typing.Union[int, str]):
         raise NotImplementedError()
 
     def keyhit(self, key: imgui.Key):
@@ -689,13 +710,13 @@ class MultiTexturesDockingViewer:
         raise NotImplementedError('Not implemented')
 
     def get_default_font_path(self):
-        resource_dir = Path(pyviewer.__file__).parent
+        resource_dir = pathlib.Path(pyviewer.__file__).parent
         font = resource_dir / 'MPLUSRounded1c-Medium.ttf'
         assert font.is_file(), f'Font file missing: "{font.resolve()}"'
         return font.as_posix()
 
     def get_mono_font_path(self):
-        resource_dir = Path(pyviewer.__file__).parent
+        resource_dir = pathlib.Path(pyviewer.__file__).parent
         font = resource_dir / 'Hack-Regular.ttf'
         assert font.is_file(), f'Font file missing: "{font.resolve()}"'
         return font.as_posix()
@@ -790,6 +811,9 @@ class MultiTexturesDockingViewer:
         pass
 
     def draw_menu(self):
+        pass
+
+    def drag_and_drop_callback(self, paths: list[pathlib.Path]) -> bool:
         pass
 
     # Perform computation, returning single np/torch image, or None
