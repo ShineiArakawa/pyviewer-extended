@@ -1,0 +1,29 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "examples.demo_docking_viewer_3panels",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "examples.demo_docking_viewer_3panels",
+            "justMyCode": false
+        },
+        {
+            "name": "examples.demo_docking_viewer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "examples.demo_docking_viewer",
+            "justMyCode": false
+        },
+        {
+            "name": "pyviewer_extended.remote",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pyviewer_extended.remote",
+            "justMyCode": false
+        },
+    ]
+}

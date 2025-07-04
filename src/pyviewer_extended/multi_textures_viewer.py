@@ -622,7 +622,9 @@ class MultiTexturesDockingViewer:
         # N-1 splits
 
         dock_space_names = ['MainDockSpace'] + [f'Dock{i}' for i in range(len(layout_funcs) - 1)]
-        splits = [hello_imgui.DockingSplit(prev, cur, imgui.Dir.right, ratio_=0.5) for prev, cur in zip(dock_space_names[:-1], dock_space_names[1:])]
+        n_windows = len(layout_funcs)
+        # NOTE: Should be splitted like: (N-1) / N, (N-2) / (N-1), (N-3) / (N-2), ..., 3 / 4, 2 / 3, 1 / 2
+        splits = [hello_imgui.DockingSplit(prev, cur, imgui.Dir.right, ratio_=(n_windows - i_dock - 1) / (n_windows - i_dock)) for i_dock, (prev, cur) in enumerate(zip(dock_space_names[:-1], dock_space_names[1:]))]
         windows = [hello_imgui.DockableWindow(f._title, d, f, can_be_closed_=True) for f, d in zip(layout_funcs, dock_space_names)]
 
         return hello_imgui.DockingParams(splits, windows)
