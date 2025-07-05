@@ -183,10 +183,6 @@ class TextureWindowUnit:
         """Upload image data to OpenGL texture.
         """
 
-        if self.image is None:
-            logger.warning('No image data to upload')
-            return
-
         if self._texture is None:
             logger.warning('No OpenGL texture to upload to')
             return
@@ -311,6 +307,7 @@ class MultiTexturesDockingViewer:
         texture_names: list[str],
         normalize=False,
         enable_vsync=False,
+        full_screen_mode=hello_imgui.FullScreenMode.no_full_screen,
         with_implot=True,
         with_implot3d=False,
         with_node_editor=False,
@@ -344,6 +341,7 @@ class MultiTexturesDockingViewer:
         runner_params = hello_imgui.RunnerParams()
         runner_params.app_window_params.window_title = name
         runner_params.app_window_params.window_geometry.size = (1000, 900)
+        runner_params.app_window_params.window_geometry.full_screen_mode = full_screen_mode
         runner_params.app_window_params.restore_previous_geometry = True
         runner_params.dpi_aware_params.only_use_font_dpi_responsive = True  # automatically handle font scaling
         runner_params.fps_idling.fps_idle = 5.0
@@ -621,11 +619,7 @@ class MultiTexturesDockingViewer:
         # --------------------------------------------------------------------------------------------------------------------
         # N-1 splits
 
-        dock_space_names = ['MainDockSpace'] + [f'Dock{i}' for i in range(len(layout_funcs) - 1)]
-        n_windows = len(layout_funcs)
-        # NOTE: Should be splitted like: (N-1) / N, (N-2) / (N-1), (N-3) / (N-2), ..., 3 / 4, 2 / 3, 1 / 2
-        splits = [hello_imgui.DockingSplit(prev, cur, imgui.Dir.right, ratio_=(n_windows - i_dock - 1) / (n_windows - i_dock)) for i_dock, (prev, cur) in enumerate(zip(dock_space_names[:-1], dock_space_names[1:]))]
-        windows = [hello_imgui.DockableWindow(f._title, d, f, can_be_closed_=True) for f, d in zip(layout_funcs, dock_space_names)]
+        splits, windows = self.setup_docking_layout(layout_funcs)
 
         return hello_imgui.DockingParams(splits, windows)
 
@@ -823,6 +817,15 @@ class MultiTexturesDockingViewer:
     # Can be overridden
     def setup_theme(self):
         theme_deep_dark()
+
+    # Can be overridden
+    def setup_docking_layout(self, layout_funcs: list[typing.Callable[[None], None]]) -> tuple[list[hello_imgui.DockingSplit], list[hello_imgui.DockableWindow]]:
+        dock_space_names = ['MainDockSpace'] + [f'Dock{i}' for i in range(len(layout_funcs) - 1)]
+        n_windows = len(layout_funcs)
+        # NOTE: Should be splitted like: (N-1) / N, (N-2) / (N-1), (N-3) / (N-2), ..., 3 / 4, 2 / 3, 1 / 2
+        splits = [hello_imgui.DockingSplit(prev, cur, imgui.Dir.right, ratio_=(n_windows - i_dock - 1) / (n_windows - i_dock)) for i_dock, (prev, cur) in enumerate(zip(dock_space_names[:-1], dock_space_names[1:]))]
+        windows = [hello_imgui.DockableWindow(f._title, d, f, can_be_closed_=True) for f, d in zip(layout_funcs, dock_space_names)]
+        return splits, windows
 
     def load_settings(self):
         """Load settings using `hello_imgui.load_user_pref(k: str)`"""
