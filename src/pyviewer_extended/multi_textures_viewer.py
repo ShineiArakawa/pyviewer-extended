@@ -26,6 +26,7 @@ import OpenGL.GL as gl
 import pyviewer
 from imgui_bundle import glfw_utils, hello_imgui, imgui, immapp  # type: ignore
 from imgui_bundle.demos_python.demo_utils import demos_assets_folder
+
 # NOTE: Import GLFW from imgui_bundle.glfw_utils to avoid multile definitions
 from imgui_bundle.glfw_utils import glfw  # type: ignore
 from pyviewer.easy_dict import EasyDict
@@ -115,8 +116,9 @@ def file_drop_callback_wrapper(window: glfw._GLFWwindow, paths: list[pathlib.Pat
 
 
 class TextureWindowUnit:
-    def __init__(self, name: str):
+    def __init__(self, name: str, pan_enabled: bool = True):
         self.name = name
+        self.pan_enabled = pan_enabled
 
         # Setup PannableArea for this window
         self._pannable_area = PannableArea(force_mouse_capture=True)
@@ -219,7 +221,7 @@ class TextureWindowUnit:
             cW, cH = map(int, imgui.get_content_region_avail())
 
             # Draw the texture to the canvas
-            canvas_tex = self._pannable_area.draw_to_canvas(self._texture.tex, tW, tH, cW, cH)
+            canvas_tex = self._pannable_area.draw_to_canvas(self._texture.tex, tW, tH, cW, cH, pan_enabled=self.pan_enabled)
             imgui.image(canvas_tex, (cW, cH))
 
         imgui.end()
