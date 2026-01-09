@@ -32,11 +32,10 @@ if __name__ == '__main__':
 
         @pyviewer_extended.dockable
         def toolbar(self):
-            imgui.text(f'Dynamic font size: {self.fonts[0].font_size:.1f}')
+            imgui.text(f'Dynamic font size: {self.initial_font_size*self.ui_scale:.1f}')
             self.state.seed_0 = imgui.slider_int('Seed 0', self.state.seed_0, 0, 1000)[1]
             self.state.seed_1 = imgui.slider_int('Seed 1', self.state.seed_1, 0, 1000)[1]
             self.state.seed_2 = imgui.slider_int('Seed 2', self.state.seed_2, 0, 1000)[1]
-            imgui.get_io().font_global_scale = imgui.slider_float('Font global scale', imgui.get_io().font_global_scale, 0.1, 5)[1]
             self.ui_scale = imgui.slider_float('UI scale', self.ui_scale, 0.1, 5.0)[1]
 
         def drag_and_drop_callback(self, paths):
